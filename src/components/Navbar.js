@@ -10,7 +10,9 @@ export default function Navbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
 
-  if (!session || pathname === "/auth/signin" || pathname === "/") return null;
+  // Robust check: Hide navbar on Landing and Sign-in pages
+  const isAuthPage = pathname?.startsWith("/auth/signin") || pathname === "/";
+  if (!session || isAuthPage) return null;
 
   const isAdmin = session.user.role === "ADMIN";
 
