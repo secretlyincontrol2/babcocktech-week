@@ -149,6 +149,14 @@ export default function AdminSubmissions() {
                 <strong>{sub.judgeCount}</strong>
               </div>
             </div>
+
+            <button 
+              onClick={() => handleDelete(sub.id, sub.title)}
+              className={styles.deleteProjectBtn}
+              disabled={updatingId === sub.id}
+            >
+              {updatingId === sub.id ? "..." : "Delete Project"}
+            </button>
           </div>
         ))}
       </div>

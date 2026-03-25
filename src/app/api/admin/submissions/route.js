@@ -36,3 +36,35 @@ export async function PATCH(req) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { id } = await req.json();
+    if (!id) return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+
+    // Delete ratings first
+    await prisma.rating.deleteMany({ where: { submissionId: id } });
+    
+    // Delete submission
+    const deleted = await prisma.submission.delete({
+      where: { id }
+    });
+
+    await prisma.log.create({
+      data: {
+        action: "DELETE_SUBMISSION",
+        details: `Deleted project: ${deleted.title}`,
+        userId: session.user.id
+      }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
