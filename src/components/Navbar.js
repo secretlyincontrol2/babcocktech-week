@@ -10,7 +10,7 @@ export default function Navbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
 
-  if (!session) return null;
+  if (!session || pathname === "/auth/signin" || pathname === "/") return null;
 
   const isAdmin = session.user.role === "ADMIN";
 

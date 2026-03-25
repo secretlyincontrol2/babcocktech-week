@@ -28,7 +28,7 @@ export default function SignIn() {
       setError("Invalid email or password");
       setLoading(false);
     } else {
-      router.push("/");
+      window.location.href = "/";
     }
   };
 
