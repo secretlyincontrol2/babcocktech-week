@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String
+  role          Role      @default(JUDGE)
+  ratings       Rating[]
+  logs          Log[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  ADMIN
+  JUDGE
+}
+
+model Submission {
+  id             String   @id @default(cuid())
+  title          String
+  description    String?
+  ownerName      String?
+  githubUrl      String?
+  demoUrl        String?
+  status         String   @default("PENDING")
+  winnerCategory String?
+  ratings        Rating[]
+  createdAt      DateTime @default(now())
+}
+
+model Criterion {
+  id          String   @id @default(cuid())
+  name        String
+  maxScore    Int      @default(10)
+  ratings     Rating[]
+  createdAt   DateTime @default(now())
+}
+
+model Rating {
+  id           String     @id @default(cuid())
+  score        Int
+  comment      String?
+  userId       String
+  submissionId String
+  criterionId  String
+  user         User       @relation(fields: [userId], references: [id])
+  submission   Submission @relation(fields: [submissionId], references: [id])
+  criterion    Criterion  @relation(fields: [criterionId], references: [id])
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, submissionId, criterionId])
+}
+
+model Log {
+  id        String   @id @default(cuid())
+  action    String
+  details   String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
