@@ -2,7 +2,15 @@ import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 export async function proxy(req) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const secret = process.env.NEXTAUTH_SECRET;
+  
+  // Use getToken with secureCookie: true if on Vercel (HTTPS)
+  const token = await getToken({ 
+    req, 
+    secret,
+    secureCookie: process.env.NODE_ENV === "production" || req.nextUrl.protocol === "https:",
+  });
+
   const { pathname } = req.nextUrl;
 
   if (pathname.startsWith("/admin")) {
