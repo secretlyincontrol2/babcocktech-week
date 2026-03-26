@@ -7,11 +7,14 @@ import Image from "next/image";
 import styles from "./navbar.module.css";
 
 export default function Navbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const pathname = usePathname();
 
   // Robust check: Hide navbar on Landing and Sign-in pages
   const isAuthPage = pathname?.startsWith("/auth/signin") || pathname === "/";
+  
+  // Don't return null if still loading session to prevent navigation flicker
+  if (status === "loading") return <nav className={`${styles.nav} glass`}><div className={styles.container}></div></nav>;
   if (!session || isAuthPage) return null;
 
   const isAdmin = session.user.role === "ADMIN";

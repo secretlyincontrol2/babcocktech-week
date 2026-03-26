@@ -12,7 +12,7 @@ export async function GET() {
 
   const judges = await prisma.user.findMany({
     where: { role: "JUDGE" },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, createdAt: true },
   });
   return NextResponse.json(judges);
 }

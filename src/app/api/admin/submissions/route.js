@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== "ADMIN") {
@@ -17,7 +19,14 @@ export async function GET() {
     }
   });
 
-  return NextResponse.json(submissions);
+  // Calculate totalScore here to ensure it's always sync'd with current ratings
+  const enhanced = submissions.map(sub => ({
+    ...sub,
+    totalScore: sub.ratings?.reduce((acc, r) => acc + (r.score || 0), 0) || 0,
+    judgeCount: new Set(sub.ratings?.map(r => r.userId)).size
+  }));
+
+  return NextResponse.json(enhanced);
 }
 export async function PATCH(req) {
   const session = await getServerSession(authOptions);
