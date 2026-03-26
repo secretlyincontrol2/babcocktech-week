@@ -10,6 +10,7 @@ export default function AdminSubmissions() {
     teamName: "", projectTitle: "", description: "", githubUrl: "", demoUrl: ""
   });
   const [creating, setCreating] = useState(false);
+  const [updatingId, setUpdatingId] = useState(null);
 
   const fetchSubmissions = () => {
     fetch("/api/admin/submissions")
@@ -35,6 +36,39 @@ export default function AdminSubmissions() {
   useEffect(() => {
     fetchSubmissions();
   }, []);
+
+  const handleSetWinner = async (id, category) => {
+    setUpdatingId(id);
+    try {
+      const res = await fetch("/api/admin/submissions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, winnerCategory: category })
+      });
+      if (res.ok) fetchSubmissions();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleDelete = async (id, title) => {
+    if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) return;
+    setUpdatingId(id);
+    try {
+      const res = await fetch("/api/admin/submissions", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
+      });
+      if (res.ok) fetchSubmissions();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
